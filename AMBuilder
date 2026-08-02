@@ -14,12 +14,12 @@ for sdk_target in MMSPlugin.sdk_targets:
   
   binary.compiler.cxxincludes += [
     os.path.join(builder.sourcePath, 'src'),
-    os.path.join(builder.sourcePath, '..', 'SchemaEntity'),
+    os.path.join(builder.sourcePath, 'SchemaEntity'),
   ]
 
   binary.sources += [
     os.path.join('src', 'killhaus_monitor.cpp'),
-    os.path.join('..', 'SchemaEntity', 'schemasystem.cpp'),
+    os.path.join('SchemaEntity', 'schemasystem.cpp'),
   ]
 
   if cxx.target.arch == 'x86':
