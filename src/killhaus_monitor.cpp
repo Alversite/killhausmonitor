@@ -67,7 +67,10 @@ static double g_flLastPoll = 0.0;
 SH_DECL_HOOK3_void(ISource2Server, GameFrame, SH_NOATTRIB, 0, bool, bool, bool);
 
 // ── Резолв движковых указателей (то, что раньше давал Utils) ─────────
-static CGameEntitySystem *ResolveGameEntitySystem()
+// ВАЖНО: имя ровно GameEntitySystem() — так объявлено extern в SDK
+// (entity2/entitysystem.h), и SDK-код (entitysystem.cpp) линкуется на неё.
+// Не static и не в анонимном namespace — иначе undefined symbol при загрузке.
+CGameEntitySystem *GameEntitySystem()
 {
 	if (!g_pGameResourceServiceServer)
 		return nullptr;
@@ -167,7 +170,7 @@ void KillhausMonitor::Hook_GameFrame(bool simulating, bool bFirstTick, bool bLas
 {
 	if (!g_pEntitySystem)
 	{
-		g_pGameEntitySystem = ResolveGameEntitySystem();
+		g_pGameEntitySystem = GameEntitySystem();
 		g_pEntitySystem = reinterpret_cast<CEntitySystem *>(g_pGameEntitySystem);
 	}
 	if (!gpGlobals)
