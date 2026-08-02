@@ -36,12 +36,16 @@ class IGameResourceService;
 #ifndef SOURCE2ENGINETOSERVER_INTERFACE_VERSION
 #define SOURCE2ENGINETOSERVER_INTERFACE_VERSION "Source2EngineToServer001"
 #endif
+#ifndef SOURCE2GAMECLIENTS_INTERFACE_VERSION
+#define SOURCE2GAMECLIENTS_INTERFACE_VERSION "Source2GameClients001"
+#endif
 
 // ── Глобалы плагина ─────────────────────────────────────────────────
 KillhausMonitor g_KillhausMonitor;
 PLUGIN_EXPOSE(KillhausMonitor, g_KillhausMonitor);
 
 IVEngineServer2 *engine = nullptr;
+IServerGameClients *g_pSource2GameClients = nullptr;
 
 // Эти три уже определены в SDK (interfaces.a) — только extern, не определять.
 extern INetworkServerService *g_pNetworkServerService;
@@ -52,6 +56,12 @@ extern ISchemaSystem *g_pSchemaSystem;
 CEntitySystem *g_pEntitySystem = nullptr;
 CGameEntitySystem *g_pGameEntitySystem = nullptr;
 CGlobalVars *gpGlobals = nullptr;
+
+// Время подключения по слоту (для playtime). Обновляется хуком ClientPutInServer —
+// событийно, без опасного перебора слотов каждый тик.
+static int g_connectTime[128] = {0};
+
+SH_DECL_HOOK4_void(IServerGameClients, ClientPutInServer, SH_NOATTRIB, 0, CPlayerSlot, char const *, int, uint64);
 
 // GameEntitySystem() — имя строго так: объявлено extern в SDK (entity2/entitysystem.h),
 // SDK-код (entitysystem.cpp) линкуется на неё. Offset 0x58/0x50 подтверждён по
@@ -140,7 +150,10 @@ static json BuildServerInfo()
 				jp["headshots"] = 0;
 			}
 			jp["ping"] = (int)pc->m_iPing();
-			jp["playtime"] = 0; // без per-tick хука время не трекаем (безопасность)
+			int slot = pc->GetPlayerSlot();
+			jp["playtime"] = (slot >= 0 && slot < 128 && g_connectTime[slot] > 0)
+				? (int)(std::time(nullptr) - g_connectTime[slot])
+				: 0;
 			jPlayers.push_back(jp);
 		}
 	}
@@ -165,6 +178,9 @@ bool KillhausMonitor::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxle
 	GET_V_IFACE_CURRENT(GetEngineFactory, engine, IVEngineServer2, SOURCE2ENGINETOSERVER_INTERFACE_VERSION);
 	GET_V_IFACE_ANY(GetEngineFactory, g_pNetworkServerService, INetworkServerService, NETWORKSERVERSERVICE_INTERFACE_VERSION);
 	GET_V_IFACE_ANY(GetEngineFactory, g_pGameResourceServiceServer, IGameResourceService, GAMERESOURCESERVICESERVER_INTERFACE_VERSION);
+	GET_V_IFACE_ANY(GetServerFactory, g_pSource2GameClients, IServerGameClients, SOURCE2GAMECLIENTS_INTERFACE_VERSION);
+
+	SH_ADD_HOOK(IServerGameClients, ClientPutInServer, g_pSource2GameClients, SH_MEMBER(this, &KillhausMonitor::Hook_ClientPutInServer), true);
 
 	ConVar_Register(FCVAR_RELEASE | FCVAR_SERVER_CAN_EXECUTE | FCVAR_GAMEDLL);
 	return true;
@@ -172,13 +188,24 @@ bool KillhausMonitor::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxle
 
 bool KillhausMonitor::Unload(char *error, size_t maxlen)
 {
+	if (g_pSource2GameClients)
+		SH_REMOVE_HOOK(IServerGameClients, ClientPutInServer, g_pSource2GameClients, SH_MEMBER(this, &KillhausMonitor::Hook_ClientPutInServer), true);
 	ConVar_Unregister();
 	return true;
 }
 
+// Клиент вошёл в игру — запоминаем время подключения по слоту.
+void KillhausMonitor::Hook_ClientPutInServer(CPlayerSlot slot, char const *name, int type, uint64 xuid)
+{
+	int i = slot.Get();
+	if (i >= 0 && i < 128)
+		g_connectTime[i] = (int)std::time(nullptr);
+	RETURN_META(MRES_IGNORED);
+}
+
 // ── Метаданные ──────────────────────────────────────────────────────
 const char *KillhausMonitor::GetLicense() { return "GPLv3"; }
-const char *KillhausMonitor::GetVersion() { return "1.0.1"; }
+const char *KillhausMonitor::GetVersion() { return "1.0.2"; }
 const char *KillhausMonitor::GetDate() { return __DATE__; }
 const char *KillhausMonitor::GetLogTag() { return "KillhausMonitor"; }
 const char *KillhausMonitor::GetAuthor() { return "KILLHAUS"; }

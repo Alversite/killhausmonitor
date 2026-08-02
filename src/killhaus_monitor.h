@@ -17,12 +17,16 @@
 #include <ISmmPlugin.h>
 #include <sh_vector.h>
 #include <iserver.h>
+#include <playerslot.h> // CPlayerSlot
 
 class KillhausMonitor final : public ISmmPlugin, public IMetamodListener
 {
 public:
 	bool Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool late);
 	bool Unload(char *error, size_t maxlen);
+
+public: // Хук подключения клиента — учёт времени на сервере (playtime).
+	void Hook_ClientPutInServer(CPlayerSlot slot, char const *name, int type, uint64 xuid);
 
 public: // ISmmPlugin
 	const char *GetAuthor();
