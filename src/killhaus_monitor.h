@@ -33,9 +33,6 @@ public: // ISmmPlugin
 	const char *GetVersion();
 	const char *GetDate();
 	const char *GetLogTag();
-
-public: // Хук игрового кадра — резолв указателей + учёт времени игроков.
-	void Hook_GameFrame(bool simulating, bool bFirstTick, bool bLastTick);
 };
 
 extern KillhausMonitor g_KillhausMonitor;
