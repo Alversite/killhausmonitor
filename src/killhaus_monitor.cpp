@@ -47,12 +47,15 @@ PLUGIN_EXPOSE(KillhausMonitor, g_KillhausMonitor);
 
 IVEngineServer2 *engine = nullptr;
 ISource2Server *server = nullptr;
-INetworkServerService *g_pNetworkServerService = nullptr;
-IGameResourceService *g_pGameResourceServiceServer = nullptr;
 
-// Требуются SchemaEntity (schemasystem.cpp/CBaseEntity.h) как внешние — определяем тут.
-// Если SDK объявит их сам и линкер ругнётся на дубликат — убрать соответствующую строку.
-ISchemaSystem *g_pSchemaSystem = nullptr;
+// Эти три глобала УЖЕ определены в SDK (interfaces.a) — объявляем extern (GET_V_IFACE
+// в них присваивает), но НЕ определяем, иначе multiple definition при линковке.
+extern INetworkServerService *g_pNetworkServerService;
+extern IGameResourceService *g_pGameResourceServiceServer;
+extern ISchemaSystem *g_pSchemaSystem;
+
+// Эти в SDK не определены — их ждёт SchemaEntity (schemasystem.cpp/CBaseEntity.h),
+// поэтому определяем сами.
 CEntitySystem *g_pEntitySystem = nullptr;
 CGameEntitySystem *g_pGameEntitySystem = nullptr;
 CGlobalVars *gpGlobals = nullptr;
