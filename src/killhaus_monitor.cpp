@@ -13,8 +13,7 @@
 #include "schemasystem/schemasystem.h"
 #include <entity2/entitysystem.h>
 #include <eiface.h>
-#include <igameresourceservice.h>
-#include <networksystem/inetworkserverservice.h>
+#include <iserver.h> // INetworkServerService, INetworkGameServer, CNetworkGameServerBase
 
 // SchemaEntity (../SchemaEntity) — schema-обёртки и глобалы g_pEntitySystem.
 #include "utils.hpp"
@@ -24,6 +23,23 @@
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
+
+// В hl2sdk-cs2 нет отдельного хедера GameResourceService — объявляем forward и строки
+// версий сами (значения из public/interfaces/interfaces.h; guarded — если SDK объявит
+// их сам, дубля не будет). ВНИМАНИЕ: у GameResourceService строка с 'V'.
+class IGameResourceService;
+#ifndef GAMERESOURCESERVICESERVER_INTERFACE_VERSION
+#define GAMERESOURCESERVICESERVER_INTERFACE_VERSION "GameResourceServiceServerV001"
+#endif
+#ifndef NETWORKSERVERSERVICE_INTERFACE_VERSION
+#define NETWORKSERVERSERVICE_INTERFACE_VERSION "NetworkServerService_001"
+#endif
+#ifndef SOURCE2SERVER_INTERFACE_VERSION
+#define SOURCE2SERVER_INTERFACE_VERSION "Source2Server001"
+#endif
+#ifndef SOURCE2ENGINETOSERVER_INTERFACE_VERSION
+#define SOURCE2ENGINETOSERVER_INTERFACE_VERSION "Source2EngineToServer001"
+#endif
 
 // ── Глобалы плагина ─────────────────────────────────────────────────
 KillhausMonitor g_KillhausMonitor;
