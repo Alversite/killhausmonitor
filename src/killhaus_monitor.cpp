@@ -45,12 +45,12 @@ KillhausMonitor g_KillhausMonitor;
 PLUGIN_EXPOSE(KillhausMonitor, g_KillhausMonitor);
 
 IVEngineServer2 *engine = nullptr;
-IServerGameClients *g_pSource2GameClients = nullptr;
 
-// Эти три уже определены в SDK (interfaces.a) — только extern, не определять.
+// Эти уже определены в SDK (interfaces.a) — только extern, не определять.
 extern INetworkServerService *g_pNetworkServerService;
 extern IGameResourceService *g_pGameResourceServiceServer;
 extern ISchemaSystem *g_pSchemaSystem;
+extern IServerGameClients *g_pSource2GameClients;
 
 // Эти в SDK нет — их ждёт SchemaEntity, определяем сами.
 CEntitySystem *g_pEntitySystem = nullptr;
