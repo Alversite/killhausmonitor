@@ -3,6 +3,8 @@
 #include "CBaseModelEntity.h"
 #include "services.h"
 
+class CBasePlayerController; // fwd (SDK-compat: разрыв циклической зависимости)
+
 class CBasePlayerPawn : public CBaseModelEntity
 {
 public:

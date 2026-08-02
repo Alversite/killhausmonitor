@@ -48,7 +48,7 @@ PLUGIN_EXPOSE(KillhausMonitor, g_KillhausMonitor);
 IVEngineServer2 *engine = nullptr;
 ISource2Server *server = nullptr;
 INetworkServerService *g_pNetworkServerService = nullptr;
-IGameResourceServiceServer *g_pGameResourceServiceServer = nullptr;
+IGameResourceService *g_pGameResourceServiceServer = nullptr;
 
 // Требуются SchemaEntity (schemasystem.cpp/CBaseEntity.h) как внешние — определяем тут.
 // Если SDK объявит их сам и линкер ругнётся на дубликат — убрать соответствующую строку.
@@ -205,7 +205,7 @@ bool KillhausMonitor::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxle
 	GET_V_IFACE_ANY(GetEngineFactory, g_pSchemaSystem, ISchemaSystem, SCHEMASYSTEM_INTERFACE_VERSION);
 	GET_V_IFACE_CURRENT(GetEngineFactory, engine, IVEngineServer2, SOURCE2ENGINETOSERVER_INTERFACE_VERSION);
 	GET_V_IFACE_CURRENT(GetEngineFactory, g_pNetworkServerService, INetworkServerService, NETWORKSERVERSERVICE_INTERFACE_VERSION);
-	GET_V_IFACE_ANY(GetEngineFactory, g_pGameResourceServiceServer, IGameResourceServiceServer, GAMERESOURCESERVICESERVER_INTERFACE_VERSION);
+	GET_V_IFACE_ANY(GetEngineFactory, g_pGameResourceServiceServer, IGameResourceService, GAMERESOURCESERVICESERVER_INTERFACE_VERSION);
 	GET_V_IFACE_ANY(GetServerFactory, server, ISource2Server, SOURCE2SERVER_INTERFACE_VERSION);
 
 	SH_ADD_HOOK_MEMFUNC(ISource2Server, GameFrame, server, &g_KillhausMonitor, &KillhausMonitor::Hook_GameFrame, true);
