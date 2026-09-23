@@ -44,8 +44,12 @@ jobs:
           git clone https://github.com/alliedmodders/metamod-source.git
           git -C metamod-source checkout 7ec0f16948ab3a0910a98b4ac10e1c0e360d5339
           git -C metamod-source submodule update --init --recursive
-          git clone --recursive --branch cs2 --single-branch \
-            https://github.com/alliedmodders/hl2sdk.git hl2sdk-cs2
+          # hl2sdk cs2 HEAD (#427) broke public/vscript/ivscript.h
+          # ('ScriptClassDesc_t' does not name a type). #426 is the newest
+          # commit that builds and already has the post-update vtable fixes.
+          git clone https://github.com/alliedmodders/hl2sdk.git hl2sdk-cs2
+          git -C hl2sdk-cs2 checkout aeaa10b6dbbe9898d47db03c9dcf336528623ce9
+          git -C hl2sdk-cs2 submodule update --init --recursive
           cd ..
 
           # SchemaEntity — рядом с репозиторием (AMBuilder ссылается на ../SchemaEntity)
