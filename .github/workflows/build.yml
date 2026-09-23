@@ -41,7 +41,7 @@ jobs:
 
           mkdir -p external
           cd external
-          git clone --recursive --branch master --single-branch \
+          git clone --recursive --branch 1.12-dev --single-branch \
             https://github.com/alliedmodders/metamod-source.git
           git clone --recursive --branch cs2 --single-branch \
             https://github.com/alliedmodders/hl2sdk.git hl2sdk-cs2
